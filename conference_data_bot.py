@@ -72,13 +72,19 @@ def parse_wikicfp_program_events(program_url):
 def parse_wikicfp_event_detail(event_url):
     r = requests.get(event_url)
     html = BeautifulSoup(r.text, features="lxml")
-    event_data = dict(
-        (tr.find("th").text.strip(), tr.find("td").text.strip())
-        for tr in html.find("table", attrs={"class": "gglu"}).find_all("tr")
-    )
     try:
-        if "Link:" in html.find("a", {"target": "_newtab"}).parent.text:
-            event_data["Link"] = html.find("a", {"target": "_newtab"})["href"]
+        event_data = {}
+        event_data = dict(
+            (tr.find("th").text.strip(), tr.find("td").text.strip())
+            for tr in html.find("table", attrs={"class": "gglu"}).find_all("tr")
+        )
+
+        try:
+            if "Link:" in html.find("a", {"target": "_newtab"}).parent.text:
+                event_data["Link"] = html.find("a", {"target": "_newtab"})["href"]
+        except:
+            event_data["Link"] = ""
+        
+        return event_data
     except:
-        event_data["Link"] = ""
-    return event_data
+        return None
